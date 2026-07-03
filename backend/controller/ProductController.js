@@ -1,4 +1,5 @@
 import ProductModel from "../models/ProductModel.js";
+import jwt from "jsonwebtoken";
 
 
 //Adding A product to the DB
@@ -10,7 +11,28 @@ export const AddProduct = async (req, res) => {
     }
 
     try {
-        const item = new ProductModel({ name, price, description, brand, category, countInStock, image });
+        let userId = null;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_KEY);
+                userId = decoded.id;
+            } catch (err) {
+                console.error('JWT verification failed inside AddProduct:', err.message);
+            }
+        }
+
+        const item = new ProductModel({ 
+            name, 
+            price, 
+            description, 
+            brand, 
+            category, 
+            countInStock, 
+            image,
+            user: userId
+        });
         await item.save();
         res.status(201).json(item);
     } catch (error) {
@@ -72,7 +94,7 @@ export const getProductWithName = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await ProductModel.find({});
+        const products = await ProductModel.find({}).populate('user', 'name');
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
