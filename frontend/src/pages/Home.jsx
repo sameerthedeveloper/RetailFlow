@@ -28,7 +28,8 @@ function Home() {
 
     const fetchUser = async () => {
       try {
-        const response = await axios.get('http://localhost:8001/api/auth/currentuser', {
+        const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+        const response = await axios.get(`${baseUrl}/auth/currentuser`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -47,7 +48,8 @@ function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:8001/api/product/all');
+        const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+        const response = await axios.get(`${baseUrl}/product/all`);
         console.log(response.request.response);
         setSearchData(response.request.response)
       } catch (error) {

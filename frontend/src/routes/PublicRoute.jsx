@@ -17,7 +17,8 @@ function PublicRoute({ children, tokenKey = 'token', redirectTo = '/home' }) {
       }
 
       try {
-        await axios.get('http://localhost:8001/api/auth/currentuser', {
+        const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+        await axios.get(`${baseUrl}/auth/currentuser`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

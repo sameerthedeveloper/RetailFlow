@@ -18,7 +18,8 @@ function Login() {
     if (token) {
       const fetchUser = async () => {
         try {
-          await axios.get('http://localhost:8001/api/auth/me', {
+          const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+          await axios.get(`${baseUrl}/auth/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -45,7 +46,8 @@ function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:8001/api/auth/login', formData)
+      const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+      const response = await axios.post(`${baseUrl}/auth/login`, formData)
       localStorage.setItem('token', response.data.token)
       navigate('/')
     } catch (error) {

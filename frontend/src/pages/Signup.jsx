@@ -27,7 +27,8 @@ function Signup() {
         e.preventDefault()
         setLoading(true)
         try {
-            const response = await axios.post('http://localhost:8001/api/auth/signup', formData)
+            const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+            const response = await axios.post(`${baseUrl}/auth/signup`, formData)
             localStorage.setItem('token', response.data.token)
             alert('Registration successful!')
             navigate('/login')
