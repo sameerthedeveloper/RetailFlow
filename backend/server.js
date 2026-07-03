@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import ConnectDB from "./utils/connectDB.js";
-import AuthRouter from "./routes/authRoutes.js";
+import ConnectDB from "./utils/ConnectDB.js";
+import AuthRouter from "./routes/AuthRoutes.js";
 import ProductRoutes from "./routes/ProductRoutes.js";
 
 dotenv.config();
