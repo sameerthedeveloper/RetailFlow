@@ -2,7 +2,7 @@ import React from 'react'
 import { ShoppingCart, ShoppingBag } from 'lucide-react'
 
 function ProductCard({ product }) {
-  const { name, price, description, brand, category, countInStock, image } = product
+  const { name, price, description, brand, category, countInStock, image, user } = product
 
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -41,11 +41,18 @@ function ProductCard({ product }) {
 
       {/* Info Wrapper */}
       <div className="flex flex-1 flex-col p-5">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-          {category || 'General'}
-        </span>
+        <div className="flex justify-between items-center">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            {category || 'General'}
+          </span>
+          {user?.name && (
+            <span className="text-[10px] text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-full font-medium truncate max-w-[120px]" title={`Listed by ${user.name}`}>
+              By {user.name}
+            </span>
+          )}
+        </div>
         
-        <h3 className="mt-1 text-base font-bold text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
+        <h3 className="mt-1.5 text-base font-bold text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
           {name}
         </h3>
         

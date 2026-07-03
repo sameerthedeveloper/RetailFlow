@@ -29,11 +29,14 @@ function ProductModal({ product = null, onClose, onSave }) {
         countInStock: Number(form.countInStock)
       };
       
+      const token = localStorage.getItem('adminToken');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
       let response;
       if (product && product._id) {
-        response = await axios.put(`${baseUrl}/product/edit`, { ...payload, id: product._id });
+        response = await axios.put(`${baseUrl}/product/edit`, { ...payload, id: product._id }, { headers });
       } else {
-        response = await axios.post(`${baseUrl}/product/add`, payload);
+        response = await axios.post(`${baseUrl}/product/add`, payload, { headers });
       }
       onSave?.(response.data);
     } catch (error) {
