@@ -2,12 +2,8 @@ import OrderModel from "../models/OrderModel.js";
 import ProductModel from "../models/ProductModel.js";
 import jwt from "jsonwebtoken";
 
-const cyan = "\x1b[36m";
-const green = "\x1b[32m";
-const yellow = "\x1b[33m";
-const red = "\x1b[31m";
-const reset = "\x1b[0m";
 
+// Place a new order and decrement stock
 export const CreateOrder = async (req, res) => {
     const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
 
@@ -19,10 +15,8 @@ export const CreateOrder = async (req, res) => {
         return res.status(400).json({ message: "Please provide complete shipping address details!" });
     }
 
-    // 1. Authenticate user from header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.log(`${yellow}⚠ Order Placement Attempt:${reset} Unauthorized - No token provided`);
         return res.status(401).json({ message: "Not authorized, token missing!" });
     }
 
@@ -32,12 +26,11 @@ export const CreateOrder = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_KEY);
         userId = decoded.id;
     } catch (err) {
-        console.error(`${red}✗ Order Auth Error:${reset}`, err.message);
         return res.status(401).json({ message: "Not authorized, invalid token!" });
     }
 
     try {
-        // 2. Validate stock availability for all products first
+        // Validate stock availability for all products first
         for (const item of orderItems) {
             const product = await ProductModel.findById(item.product || item._id);
             if (!product) {
@@ -45,55 +38,43 @@ export const CreateOrder = async (req, res) => {
             }
 
             if (product.countInStock < item.quantity) {
-                console.log(`${yellow}⚠ Order Stock Check failed:${reset} Product "${product.name}" has only ${product.countInStock} units left (Requested: ${item.quantity})`);
-                return res.status(400).json({ 
-                    message: `Insufficient stock for product: "${product.name}". Only ${product.countInStock} units available.` 
+                return res.status(400).json({
+                    message: `Insufficient stock for product: "${product.name}". Only ${product.countInStock} units available.`
                 });
             }
         }
 
-        // 3. Decrement countInStock for each product
-        const bulkOps = [];
-        for (const item of orderItems) {
-            const productId = item.product || item._id;
-            bulkOps.push(
-                ProductModel.findByIdAndUpdate(productId, {
-                    $inc: { countInStock: -item.quantity }
-                })
-            );
-        }
-        await Promise.all(bulkOps);
+        // Decrement countInStock for each product
+        await Promise.all(orderItems.map(item =>
+            ProductModel.findByIdAndUpdate(item.product || item._id, {
+                $inc: { countInStock: -item.quantity }
+            })
+        ));
 
-        // 4. Map items and save order
-        const mappedItems = orderItems.map(item => ({
-            name: item.name,
-            quantity: item.quantity,
-            image: item.image,
-            price: item.price,
-            product: item.product || item._id
-        }));
-
+        // Save the order
         const newOrder = new OrderModel({
             user: userId,
-            orderItems: mappedItems,
+            orderItems: orderItems.map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                image: item.image,
+                price: item.price,
+                product: item.product || item._id
+            })),
             shippingAddress,
             paymentMethod,
             totalPrice
         });
 
         await newOrder.save();
-        console.log(`${green}✓ Order Placed Successfully:${reset} Order ID ${newOrder._id} for User ID ${userId}`);
-
-        return res.status(201).json({
-            message: "Order placed successfully!",
-            order: newOrder
-        });
+        return res.status(201).json({ message: "Order placed successfully!", order: newOrder });
     } catch (error) {
-        console.error(`${red}✗ Order Placement Error:${reset}`, error.message);
-        res.status(500).json({ message: "Error in placing your order", error: error.message });
+        return res.status(500).json({ message: "Error in placing your order", error: error.message });
     }
 };
 
+
+// Get all orders placed by the authenticated user
 export const GetMyOrders = async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -110,6 +91,8 @@ export const GetMyOrders = async (req, res) => {
     }
 };
 
+
+// Get all orders (scoped to the authenticated seller's products)
 export const GetAllOrders = async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -126,6 +109,8 @@ export const GetAllOrders = async (req, res) => {
     }
 };
 
+
+// Update the status of an order (only the seller who owns the order's products can update)
 export const UpdateOrderStatus = async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -136,7 +121,7 @@ export const UpdateOrderStatus = async (req, res) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_KEY);
         const sellerId = decoded.id;
-        
+
         const { orderId, status } = req.body;
         if (!orderId || !status) {
             return res.status(400).json({ message: "Order ID and status are required!" });
@@ -147,7 +132,6 @@ export const UpdateOrderStatus = async (req, res) => {
             return res.status(404).json({ message: "Order not found!" });
         }
 
-        // Check if seller owns any products in this order
         const sellerProducts = await ProductModel.find({ user: sellerId }).select('_id');
         const sellerProductIds = sellerProducts.map(p => p._id.toString());
         const hasSellerProduct = order.orderItems.some(item => sellerProductIds.includes(item.product.toString()));
@@ -158,12 +142,7 @@ export const UpdateOrderStatus = async (req, res) => {
 
         order.status = status;
         await order.save();
-        console.log(`${green}✓ Order Status Updated:${reset} Order ID ${orderId} set to "${status}"`);
-        
-        return res.status(200).json({
-            message: "Order status updated successfully!",
-            order
-        });
+        return res.status(200).json({ message: "Order status updated successfully!", order });
     } catch (error) {
         return res.status(401).json({ message: "Invalid token!", error: error.message });
     }
