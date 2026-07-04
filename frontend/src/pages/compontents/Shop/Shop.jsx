@@ -2,10 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import ProductCard from '../ProductCard'
 import { Search, SlidersHorizontal, ArrowUpDown, FilterX, Loader2, ShoppingBag } from 'lucide-react'
+import ProductDetailModal from '../Products/ProductDetailModal'
 
 function Shop() {
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [priceRange, setPriceRange] = useState(150000)
@@ -232,11 +235,24 @@ function Shop() {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map(product => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard
+                key={product._id}
+                product={product}
+                onClick={() => {
+                  setSelectedProduct(product)
+                  setIsDetailOpen(true)
+                }}
+              />
             ))}
           </div>
         )}
       </section>
+
+      <ProductDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   )
 }

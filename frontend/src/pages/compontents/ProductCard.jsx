@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ShoppingCart, ShoppingBag, Plus, Minus } from 'lucide-react'
 
-function ProductCard({ product }) {
+function ProductCard({ product, onClick }) {
   const { name, price, description, brand, category, countInStock, image, user } = product;
   const [quantity, setQuantity] = useState(0)
 
@@ -69,7 +69,10 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div
+      onClick={onClick}
+      className="group relative flex flex-col h-full overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+    >
       
       <div className="relative aspect-square w-full overflow-hidden bg-slate-50">
         {image ? (
@@ -134,7 +137,10 @@ function ProductCard({ product }) {
               type="button"
               disabled={countInStock <= 0}
               className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/10 transition-all duration-200 hover:bg-blue-700 hover:scale-105 active:scale-95 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none disabled:scale-100 cursor-pointer"
-              onClick={() => updateCartQuantity(1)}
+              onClick={(e) => {
+                e.stopPropagation();
+                updateCartQuantity(1);
+              }}
             >
               <ShoppingCart className="h-5 w-5" />
             </button>
@@ -142,7 +148,10 @@ function ProductCard({ product }) {
             <div className="flex h-11 items-center border border-slate-200 rounded-2xl bg-slate-50/50 shadow-sm overflow-hidden shrink-0">
               <button
                 type="button"
-                onClick={() => updateCartQuantity(-1)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateCartQuantity(-1);
+                }}
                 className="h-full px-3 hover:bg-slate-100 text-slate-500 active:scale-90 transition cursor-pointer flex items-center justify-center"
               >
                 <Minus className="w-3.5 h-3.5" />
@@ -152,7 +161,10 @@ function ProductCard({ product }) {
               </span>
               <button
                 type="button"
-                onClick={() => updateCartQuantity(1)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateCartQuantity(1);
+                }}
                 className="h-full px-3 hover:bg-slate-100 text-slate-500 active:scale-90 transition cursor-pointer flex items-center justify-center"
               >
                 <Plus className="w-3.5 h-3.5" />
