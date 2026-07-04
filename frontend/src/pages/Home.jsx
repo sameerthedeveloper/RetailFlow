@@ -167,11 +167,8 @@ function Home() {
       </>
     ),
     shop: (
-      <Shop/>
-    ),
-    categories: (
-      <div className="py-12 text-center text-xl font-medium text-slate-500">
-        Categories Section
+      <div className='h-full mt-10'>
+        <Shop/>
       </div>
     )
   }

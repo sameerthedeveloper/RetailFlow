@@ -46,12 +46,6 @@ function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSear
           >
             Shop
           </button>
-          <button
-            onClick={() => onPageChange?.('categories')}
-            className={`cursor-pointer transition-colors ${activePage === 'categories' ? 'font-semibold text-blue-600' : 'hover:text-slate-800'}`}
-          >
-            Categories
-          </button>
         </nav>
 
         <div className="relative flex items-center gap-3 text-slate-600">

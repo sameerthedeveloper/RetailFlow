@@ -29,7 +29,7 @@ function HomeSearchModal({ isOpen, searchQuery, setSearchQuery, items, onClose }
             <span className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-500">esc</span>
           </div>
 
-          <div className="min-h-72 px-2 py-6 sm:px-4 sm:py-10">
+          <div className="h-96 overflow-y-auto px-2 py-6 sm:px-4 sm:py-10">
             {searchQuery ? (
               <div className="space-y-1">
                 {filteredItems.length > 0 ? (
