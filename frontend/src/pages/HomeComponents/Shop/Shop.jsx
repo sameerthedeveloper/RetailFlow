@@ -105,7 +105,7 @@ function Shop() {
   return (
     <div className="flex flex-col md:flex-row gap-8 items-start mt-6">
       {/* Sidebar Filters */}
-      <aside className="w-full md:w-68 shrink-0 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-6">
+      <aside className="w-full md:w-68 shrink-0 md:sticky md:top-24 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-6 self-start">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-blue-650" />
@@ -230,7 +230,7 @@ function Shop() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map(product => (
               <ProductCard key={product._id} product={product} />
             ))}
