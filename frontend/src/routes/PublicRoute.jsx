@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
 
-function PublicRoute({ children, tokenKey = 'token', redirectTo = '/home' }) {
+function PublicRoute({ children, tokenKey = 'token', redirectTo = '/' }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
