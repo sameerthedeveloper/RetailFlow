@@ -31,7 +31,7 @@ const ProductSchema = mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: false,
-        ref: 'user',
+        ref: 'admin',
     },
 }, {
     timestamps: true,
