@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetailFlow | Catalog Showcase</title>
+  
+  <!-- Outfit Typeface -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Premium CSS Variables & Setup */
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: #151c2c;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --card-hover-border: rgba(37, 99, 235, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Glows */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 50%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header styling */
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-glow {
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .logo-text {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--text-main);
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    header h1 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 500;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+
+    /* Search & Filter Hub */
+    .controls-hub {
+      background: rgba(21, 28, 44, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1rem 1.5rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Filter Tag Pills */
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 1rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.25s ease-out;
+    }
+
+    .filter-btn:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .filter-btn.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Catalog Grid */
+    .catalog-grid {
+      display: grid;
+      grid-template-cols: 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (min-width: 640px) {
+      .catalog-grid {
+        grid-template-cols: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .catalog-grid {
+        grid-template-cols: repeat(3, 1fr);
+      }
+    }
+
+    /* Product Card Styling */
+    .product-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--card-hover-border);
+      box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-glow);
+    }
+
+    .image-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.15;
+      overflow: hidden;
+      background: #0d131f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 100%;
+      object-cover: center;
+      object-fit: cover;
+      transition: transform 0.5s ease-out;
+    }
+
+    .product-card:hover .product-image {
+      transform: scale(1.05);
+    }
+
+    .stock-badge {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+      border-radius: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .stock-in {
+      background-color: rgba(16, 185, 129, 0.9);
+      color: #ffffff;
+    }
+
+    .stock-low {
+      background-color: rgba(245, 158, 11, 0.9);
+      color: #ffffff;
+    }
+
+    .stock-out {
+      background-color: rgba(239, 68, 68, 0.9);
+      color: #ffffff;
+    }
+
+    .brand-badge {
+      position: absolute;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      background-color: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Card Details */
+    .card-details {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .category-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .product-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .product-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: center;
+      justify-content: justify;
+      margin-top: auto;
+      border-t: 1px solid var(--border-color);
+      padding-top: 1rem;
+    }
+
+    .price-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 5rem 1.5rem;
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+    }
+
+    .empty-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-container">
+        <div class="logo-glow"></div>
+        <div class="logo-text">Retail<span>Flow</span></div>
+      </div>
+      <h1>Products Showcase</h1>
+      <p>Interactive catalog displaying premium seed inventory database items.</p>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls-hub">
+      <div class="search-wrapper">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search products, categories, or brands..." 
+          class="search-input"
+        >
+      </div>
+      <div class="filter-tags" id="categoryTags">
+        <button class="filter-btn active" data-category="all">All Items</button>
+      </div>
+    </div>
+
+    <!-- Catalog Showcase Grid -->
+    <div class="catalog-grid" id="catalogGrid">
+      <!-- Cards rendered dynamically via JS -->
+    </div>
+  </div>
+
+  <script>
+    // Injected JSON payload parsed directly from seed HTML table
+    const products = [
+      {
+        id: "6a47e55ad97b0f97b08f1fb0",
+        name: "AirPods Pro 3rd Generation",
+        price: 25900,
+        description: "Apple's Premium Earphones with high fidelity active noise cancellation.",
+        brand: "Apple",
+        category: "headphones",
+        countInStock: 3,
+        image: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/airpods-pro-3-hero-select-202509_FMT_WHH?wid=752&hei=636&fmt=jpeg&qlt=90&.v=1758077264181"
+      },
+      {
+        id: "6a47f14c704e5266028d4a99",
+        name: "iPhone 17 Pro Max",
+        price: 149000,
+        description: "The Apple iPhone 17 Pro Max, released on September 19, 2025, is the current flagship model featuring a massive 6.9-inch OLED display and the advanced A19 Pro chipset. This model introduces a new aluminium unibody design.",
+        brand: "Apple",
+        category: "phone",
+        countInStock: 100,
+        image: "https://bankofelectronics.com/2764-medium_default/apple-iphone-17-pro-max-1tb-cosmic-orange-mfxt4lla.jpg"
+      },
+      {
+        id: "6a47f1f1704e5266028d4a9a",
+        name: "MacBook Air M5",
+        price: 149000,
+        description: "MacBook Air laptop with the superfast M5 chip. Lightweight, with all-day battery life. Built for AI and Apple Intelligence.",
+        brand: "Apple",
+        category: "laptop",
+        countInStock: 50,
+        image: "https://www.imagineonline.store/cdn/shop/files/IMG-19250221_m_jpeg_1.jpg?v=1772558321&width=823"
+      },
+      {
+        id: "6a47f253704e5266028d4a9b",
+        name: "MacBook Pro M5",
+        price: 257900,
+        description: "Find the best MacBook Pro for you with the M5, M5 Pro or M5 Max chip. Built for AI. Up to 24 hours of battery life. Liquid Retina XDR display.",
+        brand: "Apple",
+        category: "laptop",
+        countInStock: 100,
+        image: "https://inspireonline.in/cdn/shop/files/IMG-18273799_m_jpeg_1.jpg?v=1760537329&width=823"
+      },
+      {
+        id: "6a4882860418841b6067abf3",
+        name: "Mac mini M4",
+        price: 189000,
+        description: "Built for Apple Intelligence. M4 or M4 Pro chip inside an incredibly compact form factor.",
+        brand: "Apple",
+        category: "computer",
+        countInStock: 100,
+        image: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/mac-mini-chip-unselect-202601-gallery-1_FMT_WHH?wid=690&hei=720&fmt=jpeg&qlt=90&.v=1767391307029"
+      },
+      {
+        id: "6a4882d20418841b6067abf4",
+        name: "Apple Watch Series 11",
+        price: 46990,
+        description: "Apple Watch is the ultimate device for a healthy life, tracking fitness and monitoring metrics.",
+        brand: "Apple",
+        category: "smartwatch",
+        countInStock: 100,
+        image: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/s11-case-unselect-gallery-1-202509_GEO_EMEA_FMT_WHH?wid=752&hei=720&fmt=jpeg&qlt=90&.v=1756344861451"
+      },
+      {
+        id: "6a4883180418841b6067abf5",
+        name: "Apple Watch Ultra 3",
+        price: 89990,
+        description: "Apple Watch Ultra 3 is the ultimate sports and adventure watch with a 49 mm titanium case and built-in GPS + Cellular.",
+        brand: "Apple",
+        category: "smartwatch",
+        countInStock: 99,
+        image: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/ultra-case-unselect-gallery-1-202509_GEO_IN_FMT_WHH?wid=752&hei=720&fmt=jpeg&qlt=90&.v=1756357956673"
+      }
+    ];
+
+    let activeCategory = 'all';
+    let searchQuery = '';
+
+    // Initialize category tags
+    const categoryTagsContainer = document.getElementById('categoryTags');
+    const uniqueCategories = [...new Set(products.map(p => p.category))];
+    
+    uniqueCategories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = cat;
+      btn.setAttribute('data-category', cat);
+      categoryTagsContainer.appendChild(btn);
+    });
+
+    const catalogGrid = document.getElementById('catalogGrid');
+    const searchInput = document.getElementById('searchInput');
+
+    // Render loop
+    function renderCatalog() {
+      catalogGrid.innerHTML = '';
+      
+      const filtered = products.filter(p => {
+        const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery) ||
+                              p.brand.toLowerCase().includes(searchQuery) ||
+                              p.category.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        catalogGrid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p class="empty-text">No items found matching your catalog search criteria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        // Stock levels
+        let stockClass = 'stock-in';
+        let stockLabel = `In Stock (${p.countInStock})`;
+        if (p.countInStock <= 0) {
+          stockClass = 'stock-out';
+          stockLabel = 'Out of Stock';
+        } else if (p.countInStock <= 5) {
+          stockClass = 'stock-low';
+          stockLabel = `Low Stock (${p.countInStock})`;
+        }
+
+        card.innerHTML = `
+          <div class="image-container">
+            <img src="${p.image}" alt="${p.name}" class="product-image" loading="lazy">
+            <span class="stock-badge ${stockClass}">${stockLabel}</span>
+            <span class="brand-badge">${p.brand}</span>
+          </div>
+          <div class="card-details">
+            <span class="category-label">${p.category}</span>
+            <h3 class="product-title">${p.name}</h3>
+            <p class="product-desc">${p.description}</p>
+            <div class="price-row">
+              <span class="price-value">₹${p.price.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        `;
+        catalogGrid.appendChild(card);
+      });
+    }
+
+    // Event listeners
+    categoryTagsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        activeCategory = e.target.getAttribute('data-category');
+        renderCatalog();
+      }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      renderCatalog();
+    });
+
+    // Initial render
+    renderCatalog();
+  </script>
+</body>
+</html>
