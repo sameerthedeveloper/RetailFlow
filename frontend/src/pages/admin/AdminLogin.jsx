@@ -20,7 +20,7 @@ function AdminLogin() {
       const fetchUser = async () => {
         try {
           const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
-          await axios.get(`${baseUrl}/auth/currentuser`, {
+          await axios.get(`${baseUrl}/auth/admin/currentuser`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -49,7 +49,7 @@ function AdminLogin() {
     setLoading(true)
     try {
       const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
-      const response = await axios.post(`${baseUrl}/auth/login`, formData)
+      const response = await axios.post(`${baseUrl}/auth/admin/login`, formData)
       localStorage.setItem('adminToken', response.data.token)
       navigate('/admin')
     } catch (error) {
@@ -137,7 +137,10 @@ function AdminLogin() {
           </div>  */}
 
           {/* Sign Up */}
-          <p className="text-center text-gray-600 text-sm">
+          <p className="text-center text-gray-600 text-sm mb-2">
+            Want to sell? <Link to="/admin/signup" className="text-blue-600 font-semibold hover:underline">Register Seller Account</Link>
+          </p>
+          <p className="text-center text-gray-500 text-xs">
             Back to user login? <Link to="/login" className="text-blue-600 font-semibold hover:underline">Login</Link>
           </p>
         </div>

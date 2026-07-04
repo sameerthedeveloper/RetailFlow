@@ -5,6 +5,7 @@ import SignUp from './pages/Signup'
 import Home from './pages/Home'
 import AdminPanel from './pages/admin/AdminPanel'
 import AdminLogin from './pages/admin/AdminLogin'
+import AdminSignup from './pages/admin/AdminSignup'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
 
@@ -49,6 +50,14 @@ function AnimatedRoutes() {
           element={
             <PublicRoute tokenKey="adminToken" redirectTo="/admin">
               <PageTransition><AdminLogin /></PageTransition>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/admin/signup"
+          element={
+            <PublicRoute tokenKey="adminToken" redirectTo="/admin">
+              <PageTransition><AdminSignup /></PageTransition>
             </PublicRoute>
           }
         />
