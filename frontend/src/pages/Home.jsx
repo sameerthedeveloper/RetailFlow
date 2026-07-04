@@ -2,14 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { ShoppingBag, ShoppingCart, Smartphone, Link, Footprints, Apple, User } from 'lucide-react'
-import HomeHeader from './HomeComponents/HomeHeader'
-import HomeHero from './HomeComponents/HomeHero'
-import HomeCategories from './HomeComponents/HomeCategories'
-import HomeSearchModal from './HomeComponents/HomeSearchModal'
-import ProductCard from './HomeComponents/ProductCard'
-import FeaturedProduncts from './HomeComponents/Products/FeaturedProducts'
-import CartModal from './HomeComponents/Cart/CartModal'
-import Shop from './HomeComponents/Shop/Shop'
+import HomeHeader from './compontents/HomeHeader'
+import HomeHero from './compontents/HomeHero'
+import HomeCategories from './compontents/HomeCategories'
+import HomeSearchModal from './compontents/HomeSearchModal'
+import ProductCard from './compontents/ProductCard'
+import FeaturedProduncts from './compontents/Products/FeaturedProducts'
+import CartModal from './compontents/Cart/CartModal'
+import Shop from './compontents/Shop/Shop'
+import MyOrdersModal from './compontents/Cart/MyOrdersModal'
 
 function Home() {
   const [activePage, setActivePage] = useState('home')
@@ -18,6 +19,7 @@ function Home() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchData, setSearchData] = useState('');
 
@@ -195,6 +197,7 @@ function Home() {
           activePage={activePage}
           onPageChange={setActivePage}
           onCartToggle={() => setIsCartOpen(true)}
+          onOrdersToggle={() => setIsOrdersOpen(true)}
         />
 
         <main className="mx-3 px-3 pb-12 sm:mx-6 sm:px-6 lg:mx-10 lg:px-8">
@@ -216,6 +219,10 @@ function Home() {
       <CartModal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
+      />
+      <MyOrdersModal
+        isOpen={isOrdersOpen}
+        onClose={() => setIsOrdersOpen(false)}
       />
     </div>
   )

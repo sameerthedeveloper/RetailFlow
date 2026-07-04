@@ -109,3 +109,52 @@ export const GetMyOrders = async (req, res) => {
         return res.status(401).json({ message: "Invalid token!" });
     }
 };
+
+export const GetAllOrders = async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No token provided!" });
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+        jwt.verify(token, process.env.JWT_KEY);
+        const orders = await OrderModel.find().populate('user', 'name email').sort({ createdAt: -1 });
+        return res.status(200).json(orders);
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid or expired token!", error: error.message });
+    }
+};
+
+export const UpdateOrderStatus = async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No token provided!" });
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+        jwt.verify(token, process.env.JWT_KEY);
+        
+        const { orderId, status } = req.body;
+        if (!orderId || !status) {
+            return res.status(400).json({ message: "Order ID and status are required!" });
+        }
+
+        const order = await OrderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found!" });
+        }
+
+        order.status = status;
+        await order.save();
+        console.log(`${green}✓ Order Status Updated:${reset} Order ID ${orderId} set to "${status}"`);
+        
+        return res.status(200).json({
+            message: "Order status updated successfully!",
+            order
+        });
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid token!", error: error.message });
+    }
+};

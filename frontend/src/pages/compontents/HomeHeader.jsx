@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Search, User, ShoppingCart } from 'lucide-react'
+import { Search, User, ShoppingCart, ShoppingBag } from 'lucide-react'
 import logo from '../../assets/logo.png'
 
-function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSearchToggle, activePage, onPageChange, onCartToggle }) {
+function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSearchToggle, activePage, onPageChange, onCartToggle, onOrdersToggle }) {
   const [cartCount, setCartCount] = useState(0)
 
   const updateCartCount = () => {
@@ -82,6 +82,18 @@ function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSear
                   <p className="truncate text-sm font-semibold text-slate-800">{user?.username || 'User'}</p>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onOrdersToggle?.();
+                  onToggleAccount();
+                }}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4 text-blue-600" />
+                My Orders
+              </button>
 
               <button
                 type="button"

@@ -7,9 +7,9 @@ import {
   Bell, Headphones, Watch, Footprints, Backpack, Glasses, User, Mail
 } from 'lucide-react'
 import logo from './assets/logo.png'
-import Dashboard from './AdminSections/Dashboard';
-import Products from './AdminSections/Products';
-import Orders from './AdminSections/Orders';
+import Dashboard from './sections/Dashboard';
+import Products from './sections/Products';
+import Orders from './sections/Orders';
 
 const navItems = [
   { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },

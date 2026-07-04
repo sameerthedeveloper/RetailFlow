@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, ShoppingBag, Loader2 } from 'lucide-react'
 import axios from 'axios'
-import ProductModal from '../AdminComponents/AddProductModel'
+import ProductModal from '../components/AddProductModel'
 
 function Products() {
   const [isModalOpen, setIsModalOpen] = useState(false)
