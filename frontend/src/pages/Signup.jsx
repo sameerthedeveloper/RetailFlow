@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import signupBg from '../assets/signup.png'
@@ -13,6 +13,10 @@ function Signup() {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        document.title = 'RetailFlow | Create Account'
+    }, [])
 
     const handleChange = (e) => {
         const { name, value } = e.target

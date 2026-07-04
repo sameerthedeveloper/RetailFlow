@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   LayoutDashboard, ShoppingBag, Package, Users, TrendingUp,
   BarChart3, Megaphone, Percent, Settings, LogOut, ChevronDown,
@@ -31,6 +31,18 @@ const pages = {
 
 function AdminPanel() {
 const [activePage, setActivePage] = useState('dashboard')
+
+  useEffect(() => {
+    const pageTitleMap = {
+      dashboard: 'Admin Dashboard',
+      products: 'Manage Inventory',
+      orders: 'Customer Orders',
+      customers: 'Customers List',
+      settings: 'Admin Settings'
+    }
+    const pageName = pageTitleMap[activePage] || 'Admin Panel'
+    document.title = `RetailFlow | ${pageName}`
+  }, [activePage])
 
   return (
     <div className="flex h-screen w-screen bg-[#f4f6fb] font-[system-ui] p-3 gap-3 overflow-hidden">

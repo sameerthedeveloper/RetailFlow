@@ -14,6 +14,7 @@ function Login() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = 'RetailFlow | Login'
     const token = localStorage.getItem('token')
     if (token) {
       const fetchUser = async () => {

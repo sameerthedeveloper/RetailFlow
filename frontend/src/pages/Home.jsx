@@ -62,6 +62,16 @@ function Home() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const pageTitleMap = {
+      home: 'Home',
+      shop: 'Shop',
+      categories: 'Categories'
+    }
+    const pageName = pageTitleMap[activePage] || 'Welcome'
+    document.title = `RetailFlow | ${pageName}`
+  }, [activePage])
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     setIsAccountMenuOpen(false)

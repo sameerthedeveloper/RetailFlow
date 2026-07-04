@@ -14,6 +14,7 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    document.title = 'RetailFlow | Admin Login'
     const token = localStorage.getItem('adminToken')
     if (token) {
       const fetchUser = async () => {
