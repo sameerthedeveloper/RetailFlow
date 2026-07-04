@@ -5,6 +5,7 @@ import cors from "cors";
 import ConnectDB from "./utils/ConnectDB.js";
 import AuthRouter from "./routes/AuthRoutes.js";
 import ProductRoutes from "./routes/ProductRoutes.js";
+import OrderRouter from "./routes/OrderRoutes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.get("/api/health", (req, res) => {
 // Routes
 app.use("/api/auth", AuthRouter);
 app.use("/api/product",ProductRoutes);
+app.use("/api/order", OrderRouter);
 
 
 app.use((err, req, res, next) => {

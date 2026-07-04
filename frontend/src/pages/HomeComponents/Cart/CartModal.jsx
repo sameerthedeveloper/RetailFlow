@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { X, ShoppingBag, Trash2, Plus, Minus, CreditCard, ArrowRight } from 'lucide-react'
+import CheckoutModal from './CheckoutModal'
 
 function CartModal({ isOpen, onClose }) {
   const [cartItems, setCartItems] = useState([])
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   const loadCart = () => {
     try {
@@ -188,6 +190,7 @@ function CartModal({ isOpen, onClose }) {
             <div className="grid grid-cols-1 gap-2 pt-2">
               <button
                 type="button"
+                onClick={() => setIsCheckoutOpen(true)}
                 className="w-full flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition cursor-pointer"
               >
                 <CreditCard className="w-4 h-4" />
@@ -205,6 +208,17 @@ function CartModal({ isOpen, onClose }) {
           </div>
         )}
       </div>
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cartItems={cartItems}
+        totalPrice={totalPrice}
+        onOrderSuccess={() => {
+          setIsCheckoutOpen(false)
+          onClose()
+        }}
+      />
     </>
   )
 }
