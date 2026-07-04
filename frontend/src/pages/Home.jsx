@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { ShoppingBag, ShoppingCart, Smartphone, Link, Footprints, Apple, User } from 'lucide-react'
+
+const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
 import HomeHeader from './compontents/HomeHeader'
 import HomeHero from './compontents/HomeHero'
 import HomeCategories from './compontents/HomeCategories'
@@ -33,13 +35,9 @@ function Home() {
 
     const fetchUser = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
         const response = await axios.get(`${baseUrl}/auth/currentuser`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` }
         })
-
         setUser(response.data)
       } catch (error) {
         localStorage.removeItem('token')
@@ -53,12 +51,10 @@ function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
         const response = await axios.get(`${baseUrl}/product/all`);
-        // console.log(response.request.response);
         setSearchData(response.request.response)
       } catch (error) {
-        console.error('Error fetching products:', error);
+        // silently fail — search data is non-critical
       }
     };
     fetchProducts();
@@ -91,7 +87,7 @@ function Home() {
       try {
         productsList = JSON.parse(searchData);
       } catch (e) {
-        console.error('Error parsing searchData:', e);
+        // invalid JSON — ignore
       }
     }
 

@@ -4,6 +4,8 @@ import axios from 'axios'
 import loginBg from '../assets/login.png'
 import logo from '../assets/logo.png'
 
+const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+
 function Login() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -11,7 +13,6 @@ function Login() {
     password: ''
   })
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     document.title = 'RetailFlow | Login'
@@ -19,11 +20,8 @@ function Login() {
     if (token) {
       const fetchUser = async () => {
         try {
-          const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
-          await axios.get(`${baseUrl}/auth/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+          await axios.get(`${baseUrl}/auth/currentuser`, {
+            headers: { Authorization: `Bearer ${token}` }
           })
           navigate('/')
         } catch (error) {
@@ -36,25 +34,18 @@ function Login() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }))
+    setFormData((prevData) => ({ ...prevData, [name]: value }))
     if (error) setError('')
   }
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    setLoading(true)
     try {
-      const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
       const response = await axios.post(`${baseUrl}/auth/login`, formData)
       localStorage.setItem('token', response.data.token)
       navigate('/')
     } catch (error) {
       setError('Invalid credentials')
-    } finally {
-      setLoading(false)
     }
   }
 

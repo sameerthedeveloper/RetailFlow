@@ -4,6 +4,8 @@ import axios from 'axios'
 import signupBg from '../assets/signup.png'
 import logo from  '../assets/logo.png'
 
+const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
+
 function Signup() {
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
@@ -12,7 +14,6 @@ function Signup() {
         password: ''
     })
     const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         document.title = 'RetailFlow | Create Account'
@@ -20,29 +21,21 @@ function Signup() {
 
     const handleChange = (e) => {
         const { name, value } = e.target
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }))
+        setFormData((prevData) => ({ ...prevData, [name]: value }))
         if (error) setError('')
     }
 
     const handleSignup = async (e) => {
         e.preventDefault()
-        setLoading(true)
         try {
-            const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
             const response = await axios.post(`${baseUrl}/auth/signup`, formData)
             localStorage.setItem('token', response.data.token)
-            alert('Registration successful!')
-            navigate('/login')
+            navigate('/')
         } catch (error) {
-            console.error(error)
             setError('Error creating account. Please try again.')
-        } finally {
-            setLoading(false)
         }
     }
+
 
   return (
     <div
