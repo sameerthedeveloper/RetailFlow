@@ -50,27 +50,35 @@ app.use((err, req, res, next) => {
 });
 
 
-ConnectDB()
-    .then(() => {
-        const server = app.listen(port, () => {
-            console.log(`\n${green}✓ Server is running${reset}`);
-            console.log(`${yellow}  • Port: ${reset}${magenta}${port}${reset}`);
-            console.log(`${yellow}  • URL: ${reset}${blue}http://localhost:${port}${reset}`);
-            console.log(`${yellow}  • Health: ${reset}${blue}http://localhost:${port}/api/health${reset}\n`);
-        });
-
-        // Graceful shutdown
-        process.on("SIGTERM", () => {
-            console.log(`\n${yellow}⚠ SIGTERM received, shutting down gracefully...${reset}`);
-            server.close(() => {
-                console.log(`${green}✓ Server closed${reset}\n`);
-                process.exit(0);
+if (!process.env.VERCEL) {
+    ConnectDB()
+        .then(() => {
+            const server = app.listen(port, () => {
+                console.log(`\n${green}✓ Server is running${reset}`);
+                console.log(`${yellow}  • Port: ${reset}${magenta}${port}${reset}`);
+                console.log(`${yellow}  • URL: ${reset}${blue}http://localhost:${port}${reset}`);
+                console.log(`${yellow}  • Health: ${reset}${blue}http://localhost:${port}/api/health${reset}\n`);
             });
+
+            // Graceful shutdown
+            process.on("SIGTERM", () => {
+                console.log(`\n${yellow}⚠ SIGTERM received, shutting down gracefully...${reset}`);
+                server.close(() => {
+                    console.log(`${green}✓ Server closed${reset}\n`);
+                    process.exit(0);
+                });
+            });
+        })
+        .catch((err) => {
+            console.error(`${red}✗ Failed to start server:${reset}`, err.message);
+            process.exit(1);
         });
-    })
-    .catch((err) => {
-        console.error(`${red}✗ Failed to start server:${reset}`, err.message);
-        process.exit(1);
+} else {
+    ConnectDB().catch((err) => {
+        console.error("Vercel DB Connection Error:", err.message);
     });
+}
+
+export default app;
 
 
