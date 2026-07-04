@@ -177,7 +177,7 @@ function Home() {
       </>
     ),
     shop: (
-      <div className='h-full mt-10'>
+      <div className='h-full mt-6'>
         <Shop/>
       </div>
     )

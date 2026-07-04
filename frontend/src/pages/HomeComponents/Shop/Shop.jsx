@@ -103,9 +103,9 @@ function Shop() {
   }
 
   return (
-    <div className="flex mt-5 flex-col md:flex-row gap-8 items-start mt-6">
+    <div className="flex flex-col md:flex-row gap-8 items-start">
       {/* Sidebar Filters */}
-      <aside className="w-full  md:w-68 shrink-0 md:sticky md:top-24 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-6 self-start">
+      <aside className="w-full md:w-68 shrink-0 md:sticky md:top-24 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm space-y-6 self-start">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-blue-650" />
