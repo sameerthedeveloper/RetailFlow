@@ -134,7 +134,8 @@ export const UpdateOrderStatus = async (req, res) => {
 
     const token = authHeader.split(' ')[1];
     try {
-        jwt.verify(token, process.env.JWT_KEY);
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        const sellerId = decoded.id;
         
         const { orderId, status } = req.body;
         if (!orderId || !status) {
@@ -144,6 +145,15 @@ export const UpdateOrderStatus = async (req, res) => {
         const order = await OrderModel.findById(orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found!" });
+        }
+
+        // Check if seller owns any products in this order
+        const sellerProducts = await ProductModel.find({ user: sellerId }).select('_id');
+        const sellerProductIds = sellerProducts.map(p => p._id.toString());
+        const hasSellerProduct = order.orderItems.some(item => sellerProductIds.includes(item.product.toString()));
+
+        if (!hasSellerProduct) {
+            return res.status(403).json({ message: "You are not authorized to update this order's status!" });
         }
 
         order.status = status;

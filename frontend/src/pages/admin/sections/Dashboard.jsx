@@ -11,7 +11,12 @@ function Dashboard() {
     const fetchProducts = async () => {
       try {
         const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api'
-        const response = await axios.get(`${baseUrl}/product/all`)
+        const token = localStorage.getItem('adminToken')
+        const response = await axios.get(`${baseUrl}/product/all?sellerOnly=true`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         setProducts(response.data)
       } catch (error) {
         console.error('Error fetching dashboard data:', error)

@@ -47,16 +47,34 @@ export const EditProduct = async (req, res) => {
     if (!id) {
         return res.status(400).json({ message: "Product ID is required for editing" });
     }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Authorization token is missing!" });
+    }
+
+    const token = authHeader.split(' ')[1];
     try {
-        const updatedProduct = await ProductModel.findByIdAndUpdate(
-            id,
-            { name, price, description, brand, category, countInStock, image },
-            { new: true, runValidators: true }
-        );
-        if (!updatedProduct) {
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        const product = await ProductModel.findById(id);
+        if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-        res.status(200).json(updatedProduct);
+
+        if (product.user && product.user.toString() !== decoded.id) {
+            return res.status(403).json({ message: "You are not authorized to edit this product!" });
+        }
+
+        product.name = name;
+        product.price = price;
+        product.description = description;
+        product.brand = brand;
+        product.category = category;
+        product.countInStock = countInStock;
+        product.image = image;
+
+        await product.save();
+        res.status(200).json(product);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -75,11 +93,25 @@ export const DeleteProduct = async (req, res) => {
     if (!id) {
         return res.status(400).json({ message: "Product ID is required" });
     }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "Authorization token is missing!" });
+    }
+
+    const token = authHeader.split(' ')[1];
     try {
-        const deletedProduct = await ProductModel.findByIdAndDelete(id);
-        if (!deletedProduct) {
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        const product = await ProductModel.findById(id);
+        if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
+
+        if (product.user && product.user.toString() !== decoded.id) {
+            return res.status(403).json({ message: "You are not authorized to delete this product!" });
+        }
+
+        await ProductModel.findByIdAndDelete(id);
         res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -94,7 +126,25 @@ export const getProductWithName = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await ProductModel.find({}).populate('user', 'name');
+        const { sellerOnly } = req.query;
+        let query = {};
+
+        if (sellerOnly === 'true') {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.split(' ')[1];
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_KEY);
+                    query.user = decoded.id;
+                } catch (err) {
+                    return res.status(401).json({ message: "Invalid authorization token" });
+                }
+            } else {
+                return res.status(401).json({ message: "Authorization token is required" });
+            }
+        }
+
+        const products = await ProductModel.find(query).populate('user', 'name');
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });

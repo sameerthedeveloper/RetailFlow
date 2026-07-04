@@ -83,3 +83,48 @@ export const GetCurrentUser = async (req, res) => {
         return res.status(401).json({ message: 'Invalid token', error: error.message });
     }
 };
+
+export const GetAllUsers = async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No token provided!" });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        const sellerId = decoded.id;
+        
+        // Find products owned by this seller
+        const ProductModel = (await import("../models/ProductModel.js")).default;
+        const OrderModel = (await import("../models/OrderModel.js")).default;
+        
+        const sellerProducts = await ProductModel.find({ user: sellerId }).select('_id');
+        const sellerProductIds = sellerProducts.map(p => p._id.toString());
+        
+        // Find orders containing these products
+        const orders = await OrderModel.find({
+            "orderItems.product": { $in: sellerProductIds }
+        }).populate('user', 'name email createdAt');
+        
+        // Extract unique users who placed these orders
+        const uniqueCustomers = [];
+        const seenUserIds = new Set();
+        
+        orders.forEach(order => {
+            if (order.user && !seenUserIds.has(order.user._id.toString())) {
+                seenUserIds.add(order.user._id.toString());
+                uniqueCustomers.push({
+                    _id: order.user._id,
+                    name: order.user.name,
+                    email: order.user.email,
+                    createdAt: order.user.createdAt
+                });
+            }
+        });
+        
+        return res.status(200).json(uniqueCustomers);
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid token!", error: error.message });
+    }
+};

@@ -12,7 +12,12 @@ function Products() {
   const fetchProducts = async () => {
     try {
       const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api'
-      const response = await axios.get(`${baseUrl}/product/all`)
+      const token = localStorage.getItem('adminToken')
+      const response = await axios.get(`${baseUrl}/product/all?sellerOnly=true`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       setProducts(response.data)
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -34,7 +39,12 @@ function Products() {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api'
-        await axios.delete(`${baseUrl}/product/delete?id=${productId}`)
+        const token = localStorage.getItem('adminToken')
+        await axios.delete(`${baseUrl}/product/delete?id=${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         fetchProducts()
       } catch (error) {
         console.error('Error deleting product:', error)

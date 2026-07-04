@@ -10,6 +10,8 @@ import logo from './assets/logo.png'
 import Dashboard from './sections/Dashboard';
 import Products from './sections/Products';
 import Orders from './sections/Orders';
+import Customers from './sections/Customers';
+import SettingsPage from './sections/Settings';
 
 const navItems = [
   { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -23,8 +25,8 @@ const pages = {
   dashboard: <Dashboard />,
   products: <Products />,
   orders: <Orders />,
-  // customers: <Customers />,
-  // settings: <Settings />
+  customers: <Customers />,
+  settings: <SettingsPage />
 };
 
 function AdminPanel() {
