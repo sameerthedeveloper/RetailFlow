@@ -13,14 +13,17 @@ export const AddProduct = async (req, res) => {
     try {
         let userId = null;
         const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.split(' ')[1];
-            try {
-                const decoded = jwt.verify(token, process.env.JWT_KEY);
-                userId = decoded.id;
-            } catch (err) {
-                console.error('JWT verification failed inside AddProduct:', err.message);
-            }
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: "Authorization token is missing!" });
+        }
+        
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_KEY);
+            userId = decoded.id;
+        } catch (err) {
+            console.error('JWT verification failed inside AddProduct:', err.message);
+            return res.status(401).json({ message: "Not authorized, invalid token!" });
         }
 
         const item = new ProductModel({ 
