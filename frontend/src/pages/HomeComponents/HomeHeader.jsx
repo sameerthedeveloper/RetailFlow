@@ -1,8 +1,31 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, User, ShoppingCart } from 'lucide-react'
 import logo from '../../assets/logo.png'
 
-function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSearchToggle, activePage, onPageChange }) {
+function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSearchToggle, activePage, onPageChange, onCartToggle }) {
+  const [cartCount, setCartCount] = useState(0)
+
+  const updateCartCount = () => {
+    try {
+      const stored = localStorage.getItem('cart')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          const total = parsed.reduce((sum, item) => sum + (item.quantity || 1), 0)
+          setCartCount(total)
+          return
+        }
+      }
+    } catch (e) {}
+    setCartCount(0)
+  }
+
+  useEffect(() => {
+    updateCartCount()
+    window.addEventListener('cartUpdated', updateCartCount)
+    return () => window.removeEventListener('cartUpdated', updateCartCount)
+  }, [])
+
   return (
     <div id="top-head-bg" className="sticky top-2.5 z-50 bg-white/70 backdrop-blur-md mb-5">
       <header className="relative z-100 mx-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/85 px-3 py-3 shadow backdrop-blur-md sm:mx-4 sm:rounded-full sm:px-4 lg:mx-10 lg:px-8">
@@ -49,8 +72,7 @@ function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSear
             aria-label="Account"
             aria-expanded={isAccountMenuOpen}
             onClick={onToggleAccount}
-            className="rounded-full p-2 hover:bg-slate-100"
-
+            className="rounded-full p-2 hover:bg-slate-100 cursor-pointer"
           >
             <User className="h-5 w-5" />
           </button>
@@ -70,16 +92,24 @@ function HomeHeader({ user, isAccountMenuOpen, onToggleAccount, onLogout, onSear
               <button
                 type="button"
                 onClick={onLogout}
-                className="mt-3 flex w-full items-center justify-center rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                className="mt-3 flex w-full items-center justify-center rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 cursor-pointer"
               >
                 Logout
               </button>
             </div>
           )}
 
-          <button aria-label="Cart" className="relative rounded-full p-2 hover:bg-slate-100">
+          <button
+            onClick={onCartToggle}
+            aria-label="Cart"
+            className="relative rounded-full p-2 hover:bg-slate-100 cursor-pointer transition active:scale-95"
+          >
             <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-blue-600" />
+            {cartCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[9px] font-extrabold text-white ring-2 ring-white">
+                {cartCount}
+              </span>
+            )}
           </button>
         </div>
       </header>

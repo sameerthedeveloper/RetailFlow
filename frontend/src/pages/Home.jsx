@@ -8,6 +8,8 @@ import HomeCategories from './HomeComponents/HomeCategories'
 import HomeSearchModal from './HomeComponents/HomeSearchModal'
 import ProductCard from './HomeComponents/ProductCard'
 import FeaturedProduncts from './HomeComponents/Products/FeaturedProducts'
+import CartModal from './HomeComponents/Cart/CartModal'
+import Shop from './HomeComponents/Shop/Shop'
 
 function Home() {
   const [activePage, setActivePage] = useState('home')
@@ -15,6 +17,7 @@ function Home() {
   const [user, setUser] = useState(null)
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchData, setSearchData] = useState('');
 
@@ -50,7 +53,7 @@ function Home() {
       try {
         const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8001/api';
         const response = await axios.get(`${baseUrl}/product/all`);
-        console.log(response.request.response);
+        // console.log(response.request.response);
         setSearchData(response.request.response)
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -164,9 +167,7 @@ function Home() {
       </>
     ),
     shop: (
-      <div className="py-12 text-center text-xl font-medium text-slate-500">
-        Shop Section
-      </div>
+      <Shop/>
     ),
     categories: (
       <div className="py-12 text-center text-xl font-medium text-slate-500">
@@ -186,6 +187,7 @@ function Home() {
           onSearchToggle={() => setIsSearchOpen((prevValue) => !prevValue)}
           activePage={activePage}
           onPageChange={setActivePage}
+          onCartToggle={() => setIsCartOpen(true)}
         />
 
         <main className="mx-3 px-3 pb-12 sm:mx-6 sm:px-6 lg:mx-10 lg:px-8">
@@ -202,6 +204,11 @@ function Home() {
           setIsSearchOpen(false)
           setSearchQuery('')
         }}
+      />
+
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
       />
     </div>
   )
