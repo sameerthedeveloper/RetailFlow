@@ -38,6 +38,18 @@ app.get("/api/health", (req, res) => {
     res.json({ status: `OK`, timestamp: new Date().toISOString() });
 });
 
+// Make sure the database is connected before any data route runs.
+// Matters on Vercel, where the first request after a cold start arrives
+// before the connection is open.
+app.use("/api", async (req, res, next) => {
+    try {
+        await ConnectDB();
+        next();
+    } catch (err) {
+        res.status(503).json({ message: "Database is unavailable. Please try again in a moment." });
+    }
+});
+
 // Routes
 app.use("/api/auth", AuthRouter);
 app.use("/api/product",ProductRoutes);
@@ -73,10 +85,6 @@ if (!process.env.VERCEL) {
             console.error(`${red}✗ Failed to start server:${reset}`, err.message);
             process.exit(1);
         });
-} else {
-    ConnectDB().catch((err) => {
-        console.error("Vercel DB Connection Error:", err.message);
-    });
 }
 
 export default app;

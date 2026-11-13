@@ -1,93 +1,57 @@
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import Login from './pages/Login'
-import SignUp from './pages/Signup'
-import Home from './pages/Home'
-import AdminPanel from './pages/admin/AdminPanel'
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminSignup from './pages/admin/AdminSignup'
-import ProtectedRoute from './routes/ProtectedRoute'
-import PublicRoute from './routes/PublicRoute'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { SessionProvider, useSession } from './lib/session'
+import { PageLoader, ToastProvider } from './components/ui'
+import AuthPage from './views/AuthPage'
+import StoreLayout from './views/store/StoreLayout'
+import Home from './views/store/Home'
+import Shop from './views/store/Shop'
+import MyOrders from './views/store/MyOrders'
+const AdminLayout = lazy(() => import('./views/admin/AdminLayout'))
+const Dashboard = lazy(() => import('./views/admin/Dashboard'))
+const Inventory = lazy(() => import('./views/admin/Inventory'))
+const Orders = lazy(() => import('./views/admin/Orders'))
+const Customers = lazy(() => import('./views/admin/Customers'))
+const Settings = lazy(() => import('./views/admin/Settings'))
 
-function PageTransition({ children }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -14 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="min-h-screen"
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-function AnimatedRoutes() {
+// Signed-out visitors go to the right sign-in page and come back afterwards.
+function RequireUser({ role, children }) {
+  const { user, loading } = useSession(role)
   const location = useLocation()
-
-  return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <PageTransition><Login /></PageTransition>
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <PublicRoute>
-              <PageTransition><SignUp /></PageTransition>
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/admin/login"
-          element={
-            <PublicRoute tokenKey="adminToken" redirectTo="/admin">
-              <PageTransition><AdminLogin /></PageTransition>
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/admin/signup"
-          element={
-            <PublicRoute tokenKey="adminToken" redirectTo="/admin">
-              <PageTransition><AdminSignup /></PageTransition>
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <PageTransition><Home /></PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute tokenKey="adminToken" redirectTo="/admin/login">
-              <PageTransition><AdminPanel /></PageTransition>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </AnimatePresence>
-  )
+  if (loading) return <PageLoader label="Checking your session" />
+  if (!user) return <Navigate to={role === 'admin' ? '/admin/login' : '/login'} replace state={{ from: location.pathname }} />
+  return children
 }
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <AnimatedRoutes />
+      <SessionProvider>
+        <ToastProvider>
+          <Routes>
+            <Route element={<StoreLayout />}>
+              <Route index element={<Home />} />
+              <Route path="shop" element={<Shop />} />
+              <Route path="orders" element={<RequireUser role="customer"><MyOrders /></RequireUser>} />
+            </Route>
+
+            <Route path="login" element={<AuthPage key="customer-login" role="customer" mode="login" />} />
+            <Route path="signup" element={<AuthPage key="customer-signup" role="customer" mode="signup" />} />
+            <Route path="admin/login" element={<AuthPage key="admin-login" role="admin" mode="login" />} />
+            <Route path="admin/signup" element={<AuthPage key="admin-signup" role="admin" mode="signup" />} />
+
+            <Route path="admin" element={<RequireUser role="admin"><Suspense fallback={<PageLoader label="Opening your counter" />}><AdminLayout /></Suspense></RequireUser>}>
+              <Route index element={<Dashboard />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="customers" element={<Customers />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </ToastProvider>
+      </SessionProvider>
     </BrowserRouter>
   )
 }
-
-export default App

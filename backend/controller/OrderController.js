@@ -84,7 +84,7 @@ export const GetMyOrders = async (req, res) => {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_KEY);
-        const orders = await OrderModel.find({ user: decoded.id }).sort({ createdAt: -1 });
+        const orders = await OrderModel.find({ user: decoded.id }).sort({ createdAt: -1 }).lean();
         return res.status(200).json(orders);
     } catch (error) {
         return res.status(401).json({ message: "Invalid token!" });
@@ -102,7 +102,7 @@ export const GetAllOrders = async (req, res) => {
     const token = authHeader.split(' ')[1];
     try {
         jwt.verify(token, process.env.JWT_KEY);
-        const orders = await OrderModel.find().populate('user', 'name email').sort({ createdAt: -1 });
+        const orders = await OrderModel.find().populate('user', 'name email').sort({ createdAt: -1 }).lean();
         return res.status(200).json(orders);
     } catch (error) {
         return res.status(401).json({ message: "Invalid or expired token!", error: error.message });

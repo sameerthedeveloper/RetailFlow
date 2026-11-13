@@ -47,5 +47,8 @@ const OrderSchema = mongoose.Schema({
     }
 });
 
+OrderSchema.index({ user: 1, createdAt: -1 });
+OrderSchema.index({ "orderItems.product": 1 });
+
 const OrderModel = mongoose.model('order', OrderSchema);
 export default OrderModel;

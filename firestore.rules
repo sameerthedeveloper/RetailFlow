@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// Security rules for the Firebase demo deployment of RetailFlow.
+// They enforce the same ownership checks the Express controllers do.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSeller() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // Shopper and seller profiles: each person manages only their own.
+    match /users/{uid} {
+      allow read, create: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /admins/{uid} {
+      allow read, create: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Anyone can browse. Only the owning seller can add, edit or delete.
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isSeller() && request.resource.data.sellerId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.sellerId == request.auth.uid;
+      allow update: if signedIn() && (
+        (resource.data.sellerId == request.auth.uid
+          && request.resource.data.sellerId == resource.data.sellerId)
+        // Checkout may only lower the stock count, never anything else.
+        || (onlyChanges(['countInStock'])
+          && request.resource.data.countInStock >= 0
+          && request.resource.data.countInStock < resource.data.countInStock)
+      );
+    }
+
+    // A shopper sees their own orders; a seller sees orders containing their products.
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.user._id == request.auth.uid
+        && request.resource.data.status == 'Pending';
+      allow read: if signedIn() && (
+        resource.data.user._id == request.auth.uid
+        || request.auth.uid in resource.data.sellerIds
+      );
+      allow update: if signedIn()
+        && request.auth.uid in resource.data.sellerIds
+        && onlyChanges(['status'])
+        && request.resource.data.status in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    }
+  }
+}
