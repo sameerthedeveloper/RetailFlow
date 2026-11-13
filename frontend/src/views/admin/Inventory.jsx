@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { Boxes, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { Boxes, ImagePlus, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { api } from '../../services/api'
 import { sampleCatalog } from '../../services/sampleCatalog'
 import { categoryOf, plural, rupees } from '../../lib/format'
+import { dataUrlBytes, fileToWebpDataUrl } from '../../lib/image'
 import { Button, EmptyState, Field, IconButton, Modal, Notice, PageLoader, ProductImage, StockNote, useToast } from '../../components/ui'
 import { PageHeader } from './AdminLayout'
 
@@ -14,6 +15,22 @@ function ProductForm({ product, categories, onClose, onSaved }) {
   const [form, setForm] = useState(() => ({ ...BLANK, ...product }))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [converting, setConverting] = useState(false)
+  const [dragging, setDragging] = useState(false)
+
+  const pickPhoto = async (file) => {
+    if (!file) return
+    setConverting(true)
+    setError('')
+    try {
+      const image = await fileToWebpDataUrl(file)
+      setForm((prev) => ({ ...prev, image }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setConverting(false)
+    }
+  }
 
   const set = (key) => (event) => {
     setForm((prev) => ({ ...prev, [key]: event.target.value }))
@@ -22,6 +39,7 @@ function ProductForm({ product, categories, onClose, onSaved }) {
 
   const submit = async (event) => {
     event.preventDefault()
+    if (!form.image) return setError('Add a product photo before saving.')
     setBusy(true)
     try {
       const saved = await api.saveProduct({ ...form, price: Number(form.price), countInStock: Number(form.countInStock) })
@@ -36,8 +54,52 @@ function ProductForm({ product, categories, onClose, onSaved }) {
   return (
     <form onSubmit={submit} className="grid gap-5 p-5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-6">
       <div>
-        <ProductImage src={form.image} alt="Product photo preview" className="aspect-square w-full rounded-2xl" />
-        <p className="mt-2 text-sm text-slate-500">Shoppers see this photo first.</p>
+        <label
+          onDragOver={(event) => {
+            event.preventDefault()
+            setDragging(true)
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault()
+            setDragging(false)
+            pickPhoto(event.dataTransfer.files[0])
+          }}
+          className={`relative block cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition focus-within:border-blue-500 ${
+            dragging ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'
+          }`}
+        >
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(event) => {
+              pickPhoto(event.target.files[0])
+              event.target.value = ''
+            }}
+          />
+          {form.image ? (
+            <ProductImage src={form.image} alt="Product photo preview" className="aspect-square w-full" />
+          ) : (
+            <span className="flex aspect-square w-full flex-col items-center justify-center gap-2 px-3 text-center text-sm text-slate-500">
+              <ImagePlus className="h-7 w-7 text-blue-600" aria-hidden="true" />
+              <span className="font-semibold text-slate-700">Upload photo</span>
+              or drop it here
+            </span>
+          )}
+          {converting && (
+            <span role="status" className="absolute inset-0 grid place-items-center bg-white/80 text-sm font-semibold text-slate-700">
+              Preparing photo
+            </span>
+          )}
+        </label>
+        <p className="mt-2 text-sm text-slate-500">
+          {form.image
+            ? form.image.startsWith('data:')
+              ? `Saved as ${form.image.slice(11, form.image.indexOf(';')).toUpperCase()}, ${Math.max(1, Math.round(dataUrlBytes(form.image) / 1024))} KB. Click the photo to replace it.`
+              : 'Click the photo to replace it.'
+            : 'JPG, PNG or WebP. It is resized and converted to WebP for you.'}
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -55,7 +117,6 @@ function ProductForm({ product, categories, onClose, onSaved }) {
           <Field label="Price in ₹" type="number" min="1" step="1" inputMode="numeric" value={form.price} onChange={set('price')} required />
           <Field label="Units in stock" type="number" min={editing ? 0 : 1} step="1" inputMode="numeric" value={form.countInStock} onChange={set('countInStock')} required />
         </div>
-        <Field label="Photo link" type="url" value={form.image} onChange={set('image')} placeholder="https://" hint="Paste the web address of a product photo." required />
         <Field label="Description" as="textarea" rows={3} value={form.description} onChange={set('description')} hint="Size, material, what is in the box." required />
 
         {error && <Notice>{error}</Notice>}
@@ -63,7 +124,7 @@ function ProductForm({ product, categories, onClose, onSaved }) {
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" busy={busy}>
+          <Button type="submit" busy={busy} disabled={converting}>
             {editing ? 'Save changes' : 'Add product'}
           </Button>
         </div>

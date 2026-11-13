@@ -31,7 +31,8 @@ const port = process.env.PORT || 8001;
 
 
 app.use(cors());
-app.use(express.json());
+// Product photos arrive as Base64 WebP inside the JSON body (about 100 KB each).
+app.use(express.json({ limit: "1mb" }));
 
 
 app.get("/api/health", (req, res) => {
